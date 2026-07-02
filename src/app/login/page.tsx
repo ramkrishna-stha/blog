@@ -3,30 +3,31 @@
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import Link from "next/link";
-import Navbar from "../../components/Navbar";
+import Navbar01 from "../../components/Navbar";
+import { Loader } from "lucide-react";
 
-export default function RegisterPage() {
-  const [username, setUsername] = useState("");
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { register } = useAuth();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await register(username, email, password);
+      await login(email, password);
       window.location.href = "/dashboard";
     } catch (err) {
-      alert("Registration failed. Please try again.");
+      alert("Invalid credentials. Try any email/password.");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-zinc-950">
-      <Navbar />
+      <Navbar01 />
       <div className="flex min-h-[calc(100vh-73px)] items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
           <div className="mb-10 text-center">
@@ -34,10 +35,10 @@ export default function RegisterPage() {
               📝
             </div>
             <h1 className="text-4xl font-semibold tracking-tight">
-              Create account
+              Welcome back
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-3">
-              Join the community
+              Sign in to continue to Blogify
             </p>
           </div>
 
@@ -45,17 +46,6 @@ export default function RegisterPage() {
             onSubmit={handleSubmit}
             className="space-y-6 bg-white dark:bg-gray-900 p-10 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800"
           >
-            <div>
-              <label className="block text-sm font-medium mb-2">Username</label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                className="w-full px-5 py-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="johndoe"
-              />
-            </div>
             <div>
               <label className="block text-sm font-medium mb-2">
                 Email address
@@ -84,19 +74,20 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-2xl text-lg transition-all"
+              className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-2xl text-lg transition-all flex items-center justify-center gap-3"
             >
-              {isLoading ? "Creating account..." : "Create account"}
+              {isLoading && <Loader className="animate-spin" size={20} />}
+              Sign in
             </button>
           </form>
 
           <p className="text-center mt-8 text-sm text-gray-500">
-            Already have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link
-              href="/login"
+              href="/register"
               className="text-blue-600 hover:underline font-medium"
             >
-              Sign in
+              Sign up
             </Link>
           </p>
         </div>

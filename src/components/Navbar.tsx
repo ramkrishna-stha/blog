@@ -1,38 +1,59 @@
 "use client";
+
 import Link from "next/link";
-import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../app/features/authSlice";
-import { LogOut } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
+import { LogOut, User } from "lucide-react";
 
 export default function Navbar() {
-  const dispatch = useDispatch();
-  const { isAuthenticated, user } = useSelector((state: any) => state.auth);
+  const { user, logout, isAuthenticated } = useAuth();
 
   return (
-    <nav className="bg-white shadow-md dark:bg-gray-900">
-      <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-        <Link href="/" className="text-3xl font-bold text-purple-600">
-          Blogify
-        </Link>
-        <div className="flex items-center gap-6">
-          {isAuthenticated ? (
-            <>
+    <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-8">
+          <Link
+            href="/"
+            className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2"
+          >
+            📝 Blogify
+          </Link>
+          {isAuthenticated && (
+            <div className="flex gap-6 text-sm">
+              <Link
+                href="/dashboard"
+                className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                Dashboard
+              </Link>
               <Link
                 href="/create"
-                className="bg-purple-600 text-white px-5 py-2 rounded-xl hover:bg-purple-700"
+                className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
                 New Post
               </Link>
-              <span>{user?.name}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-4">
+          {isAuthenticated ? (
+            <>
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <User size={18} />
+                <span>{user?.username || user?.email}</span>
+              </div>
               <button
-                onClick={() => dispatch(logout())}
-                className="text-red-500"
+                onClick={logout}
+                className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors"
               >
-                <LogOut />
+                <LogOut size={18} /> Logout
               </button>
             </>
           ) : (
-            <Link href="/login" className="font-medium">
+            <Link
+              href="/login"
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-all"
+            >
               Login
             </Link>
           )}
