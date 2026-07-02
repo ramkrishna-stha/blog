@@ -3,23 +3,28 @@
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import Link from "next/link";
-import Navbar01 from "../../components/Navbar";
+import Navbar from "../../components/Navbar";
 import { Loader } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
     try {
       await login(email, password);
-      window.location.href = "/dashboard";
+      // Use Next.js router instead of window.location
+      router.push("/dashboard");
+      router.refresh(); // Force refresh to update auth state
     } catch (err) {
-      alert("Invalid credentials. Try any email/password.");
+      alert("Invalid credentials. Try any email and any password.");
     } finally {
       setIsLoading(false);
     }
@@ -27,11 +32,11 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-zinc-950">
-      <Navbar01 />
+      <Navbar />
       <div className="flex min-h-[calc(100vh-73px)] items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
           <div className="mb-10 text-center">
-            <div className="mx-auto w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-2xl flex items-center justify-center mb-6">
+            <div className="mx-auto w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-2xl flex items-center justify-center mb-6 text-3xl">
               📝
             </div>
             <h1 className="text-4xl font-semibold tracking-tight">
@@ -59,6 +64,7 @@ export default function LoginPage() {
                 placeholder="you@example.com"
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium mb-2">Password</label>
               <input

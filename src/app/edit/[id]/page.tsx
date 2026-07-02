@@ -1,71 +1,111 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useParams, useRouter } from "next/navigation";
-import { fetchPosts, updatePostAsync } from "../../../redux/postSlice";
-import { selectPosts } from "../../../redux/postSlice";
+import { updatePostAsync } from "../../../redux/postSlice"; // ← Removed fetchPosts
 import Navbar from "../../../components/Navbar";
-import BlogForm from "../../../components/BlogForm";
 import PrivateRoute from "../../../components/PrivateRoute";
-import Loader from "../../../components/Loader";
 
-export default function EditPage() {
-  const params = useParams();
-  const id = parseInt(params.id as string);
-  const dispatch = useDispatch<any>();
+export default function EditPost() {
+  const { id } = useParams();
   const router = useRouter();
-  const { posts, loading } = useSelector(selectPosts);
-  const [post, setPost] = useState<any>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const dispatch = useDispatch<any>();
 
+  const [formData, setFormData] = useState({
+    title: "",
+    body: "",
+  });
+  const [loading, setLoading] = useState(false);
+
+  // Load post data from localStorage
   useEffect(() => {
-    dispatch(fetchPosts());
-  }, [dispatch]);
+    const savedPosts = JSON.parse(localStorage.getItem("blogPosts") || "[]");
+    const post = savedPosts.find((p: any) => p.id === Number(id));
 
-  useEffect(() => {
-    const foundPost = posts.find((p: any) => p.id === id);
-    if (foundPost) setPost(foundPost);
-  }, [posts, id]);
-
-  const handleSubmit = async (data: any) => {
-    setIsSubmitting(true);
-    try {
-      await dispatch(updatePostAsync({ id, ...data })).unwrap();
+    if (post) {
+      setFormData({
+        title: post.title,
+        body: post.body,
+      });
+    } else {
       router.push("/dashboard");
-    } catch (error) {
-      alert("Failed to update post");
     }
-    setIsSubmitting(false);
+  }, [id, router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      await dispatch(
+        updatePostAsync({
+          id: Number(id),
+          title: formData.title,
+          body: formData.body,
+        }),
+      ).unwrap();
+
+      router.push("/dashboard");
+    } catch (err) {
+      alert("Failed to update post");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
-
-  if (loading && !post) return <Loader />;
-
-  if (!post) {
-    return (
-      <PrivateRoute>
-        <div>Post not found</div>
-      </PrivateRoute>
-    );
-  }
 
   return (
     <PrivateRoute>
       <div className="min-h-screen bg-gray-50 dark:bg-zinc-950">
         <Navbar />
-        <div className="max-w-3xl mx-auto px-6 py-12">
-          <div className="mb-10">
-            <h1 className="text-4xl font-semibold tracking-tight mb-2">
-              Edit Post
-            </h1>
-          </div>
-          <div className="bg-white dark:bg-gray-900 rounded-3xl p-10 border border-gray-100 dark:border-gray-800">
-            <BlogForm
-              initialData={post}
-              onSubmit={handleSubmit}
-              isLoading={isSubmitting}
-            />
-          </div>
+        <div className="max-w-2xl mx-auto px-6 py-12">
+          <h1 className="text-3xl font-semibold mb-8">Edit Post</h1>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block mb-2 font-medium">Title</label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block mb-2 font-medium">Content</label>
+              <textarea
+                value={formData.body}
+                onChange={(e) =>
+                  setFormData({ ...formData, body: e.target.value })
+                }
+                rows={12}
+                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => router.push("/dashboard")}
+                className="flex-1 py-3 border border-gray-300 rounded-2xl font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 py-3 bg-blue-600 text-white rounded-2xl font-medium hover:bg-blue-700 disabled:opacity-50"
+              >
+                {loading ? "Updating..." : "Update Post"}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </PrivateRoute>

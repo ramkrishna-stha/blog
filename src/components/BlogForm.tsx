@@ -5,16 +5,20 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Post } from "../types/post";
 
-const schema = yup.object({
-  title: yup.string().required("Title is required").min(5),
-  body: yup.string().required("Content is required").min(20),
-});
+const schema = yup
+  .object({
+    title: yup.string().required("Title is required").min(5),
+    body: yup.string().required("Content is required").min(20),
+  })
+  .required();
 
 interface BlogFormProps {
   initialData?: Partial<Post>;
   onSubmit: (data: Omit<Post, "id" | "userId">) => void;
   isLoading?: boolean;
 }
+
+type FormData = yup.InferType<typeof schema>;
 
 export default function BlogForm({
   initialData,
@@ -26,12 +30,12 @@ export default function BlogForm({
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm({
+  } = useForm<FormData>({
     resolver: yupResolver(schema),
-    defaultValues: initialData,
+    defaultValues: initialData as FormData,
   });
 
-  const submitHandler = (data: any) => {
+  const submitHandler = (data: FormData) => {
     onSubmit(data);
     if (!initialData) reset();
   };
@@ -45,7 +49,7 @@ export default function BlogForm({
         <input
           {...register("title")}
           type="text"
-          className="w-full px-5 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-blue-500 text-lg"
+          className="w-full px-5 py-3 bg-white dark:bg-white border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-blue-500 text-lg"
           placeholder="Post title..."
         />
         {errors.title && (
@@ -60,7 +64,7 @@ export default function BlogForm({
         <textarea
           {...register("body")}
           rows={12}
-          className="w-full px-5 py-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-blue-500 resize-y text-[15px] leading-relaxed"
+          className="w-full px-5 py-4 bg-white dark:bg-white border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-blue-500 resize-y text-[15px] leading-relaxed"
           placeholder="Write your thoughts here..."
         />
         {errors.body && (
@@ -71,7 +75,7 @@ export default function BlogForm({
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-2xl hover:brightness-105 transition-all disabled:opacity-70 text-lg"
+        className="w-full py-4 bg-gradient-r from-blue-600 to-indigo-600 text-white font-semibold rounded-2xl hover:brightness-105 transition-all disabled:opacity-70 text-lg"
       >
         {isLoading ? "Saving..." : initialData ? "Update Post" : "Publish Post"}
       </button>

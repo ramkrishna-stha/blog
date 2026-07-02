@@ -24,7 +24,7 @@ export const api = {
   },
 
   getPosts: async (): Promise<Post[]> => {
-    const response = await fetch(`${API_BASE}/posts?_limit=20`);
+    const response = await fetch(`${API_BASE}/posts?_limit=5`);
     return response.json();
   },
 

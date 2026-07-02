@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../src/hooks/useAuth";
 import Link from "next/link";
-import Navbar from "../../components/Navbar";
+import Navbar from "../components/Navbar";
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("");

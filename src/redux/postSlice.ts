@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+// redux/postSlice.ts
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { Post } from "../types/post";
-import { api } from "../services/api";
 
 interface PostsState {
   posts: Post[];
@@ -8,75 +8,85 @@ interface PostsState {
   error: string | null;
 }
 
+// Load posts from localStorage
+const loadPosts = (): Post[] => {
+  if (typeof window === "undefined") return [];
+  const saved = localStorage.getItem("blogPosts");
+  return saved ? JSON.parse(saved) : [];
+};
+
+// Save posts to localStorage
+const savePosts = (posts: Post[]) => {
+  localStorage.setItem("blogPosts", JSON.stringify(posts));
+};
+
 const initialState: PostsState = {
-  posts: [],
+  posts: loadPosts(),
   loading: false,
   error: null,
 };
 
-export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
-  return await api.getPosts();
-});
-
 export const createPostAsync = createAsyncThunk(
   "posts/createPost",
-  async (post: Omit<Post, "id">) => {
-    return await api.createPost(post);
+  async (data: Omit<Post, "id" | "userId">) => {
+    const newPost: Post = {
+      id: Date.now(),
+      ...data,
+      userId: 1,
+    };
+    return newPost;
   },
 );
 
 export const updatePostAsync = createAsyncThunk(
   "posts/updatePost",
-  async ({ id, ...post }: { id: number } & Partial<Post>) => {
-    return await api.updatePost(id, post);
-  },
+  async (data: { id: number; title: string; body: string }) => data,
 );
 
 export const deletePostAsync = createAsyncThunk(
   "posts/deletePost",
-  async (id: number) => {
-    await api.deletePost(id);
-    return id;
-  },
+  async (id: number) => id,
 );
 
 const postSlice = createSlice({
   name: "posts",
   initialState,
-  reducers: {
-    setPosts: (state, action: PayloadAction<Post[]>) => {
-      state.posts = action.payload;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchPosts.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fetchPosts.fulfilled, (state, action) => {
-        state.loading = false;
-        state.posts = action.payload;
-      })
-      .addCase(fetchPosts.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || "Failed to fetch posts";
-      })
-      .addCase(createPostAsync.fulfilled, (state, action) => {
-        state.posts.unshift(action.payload);
-      })
+      // Create Post
+      .addCase(
+        createPostAsync.fulfilled,
+        (state, action: PayloadAction<Post>) => {
+          state.posts.unshift(action.payload); // Show newest first
+          savePosts(state.posts);
+          state.loading = false;
+        },
+      )
+
+      // Update Post
       .addCase(updatePostAsync.fulfilled, (state, action) => {
         const index = state.posts.findIndex((p) => p.id === action.payload.id);
         if (index !== -1) {
-          state.posts[index] = action.payload;
+          state.posts[index] = { ...state.posts[index], ...action.payload };
+          savePosts(state.posts);
         }
       })
-      .addCase(deletePostAsync.fulfilled, (state, action) => {
-        state.posts = state.posts.filter((p) => p.id !== action.payload);
+
+      // Delete Post
+      .addCase(
+        deletePostAsync.fulfilled,
+        (state, action: PayloadAction<number>) => {
+          state.posts = state.posts.filter((p) => p.id !== action.payload);
+          savePosts(state.posts);
+        },
+      )
+
+      .addCase(createPostAsync.pending, (state) => {
+        state.loading = true;
       });
   },
 });
 
-export const { setPosts } = postSlice.actions;
 export const selectPosts = (state: any) => state.posts;
-
-export default postSlice.reducer; // ← This was missing!
+export default postSlice.reducer;

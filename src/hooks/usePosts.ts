@@ -1,123 +1,68 @@
+// hooks/usePosts.ts
 "use client";
 
-import { useEffect } from "react";
-import api from "@/services/api";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  createPostAsync,
+  updatePostAsync,
+  deletePostAsync,
+} from "../redux/postSlice";
+import { selectPosts } from "../redux/postSlice";
+import { Post } from "../types/post";
 
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { fetchPosts, addPost, updatePost, deletePost } from "@/redux/postSlice";
+export const usePosts = () => {
+  const dispatch = useDispatch<any>();
+  const { posts, loading, error } = useSelector(selectPosts);
+  const [isClient, setIsClient] = useState(false);
 
-import { CreatePostDto, UpdatePostDto, Post } from "@/types/post";
-
-export default function usePosts() {
-  const dispatch = useAppDispatch();
-
-  const { posts, loading, error } = useAppSelector((state) => state.posts);
-
-  /**
-   * Load posts when component mounts
-   */
   useEffect(() => {
-    if (posts.length === 0) {
-      dispatch(fetchPosts());
-    }
-  }, [dispatch, posts.length]);
+    setIsClient(true);
+  }, []);
 
-  /**
-   * Create Post
-   */
-  const createPost = async (data: CreatePostDto) => {
+  const createPost = async (data: Omit<Post, "id" | "userId">) => {
     try {
-      const response = await api.post("/posts", {
-        title: data.title,
-        body: data.body,
-        userId: 1,
-      });
-
-      const newPost: Post = {
-        id: response.data.id || Date.now(),
-        title: data.title,
-        body: data.body,
-        userId: 1,
-      };
-
-      dispatch(addPost(newPost));
-
-      return {
-        success: true,
-        post: newPost,
-      };
-    } catch (err) {
-      return {
-        success: false,
-        message: "Unable to create post.",
-      };
+      const result = await dispatch(createPostAsync(data)).unwrap();
+      return { success: true, post: result };
+    } catch (err: any) {
+      console.error("Create error:", err);
+      return { success: false, message: "Failed to create post" };
     }
   };
 
-  /**
-   * Update Post
-   */
-  const editPost = async (data: UpdatePostDto) => {
+  const editPost = async (data: {
+    id: number;
+    title: string;
+    body: string;
+  }) => {
     try {
-      await api.put(`/posts/${data.id}`, data);
-
-      dispatch(
-        updatePost({
-          id: data.id,
-          title: data.title,
-          body: data.body,
-          userId: 1,
-        }),
-      );
-
-      return {
-        success: true,
-      };
+      await dispatch(updatePostAsync(data)).unwrap();
+      return { success: true };
     } catch (err) {
-      return {
-        success: false,
-        message: "Unable to update post.",
-      };
+      return { success: false, message: "Failed to update" };
     }
   };
 
-  /**
-   * Delete Post
-   */
   const removePost = async (id: number) => {
     try {
-      await api.delete(`/posts/${id}`);
-
-      dispatch(deletePost(id));
-
-      return {
-        success: true,
-      };
+      await dispatch(deletePostAsync(id)).unwrap();
+      return { success: true };
     } catch (err) {
-      return {
-        success: false,
-        message: "Unable to delete post.",
-      };
+      return { success: false, message: "Failed to delete" };
     }
   };
 
-  /**
-   * Find a post by ID
-   */
-  const getPostById = (id: number) => {
-    return posts.find((post) => post.id === id);
+  const getPostById = (id: number): Post | undefined => {
+    return posts.find((post: Post) => post.id === id);
   };
 
-  /**
-   * Search posts
-   */
-  const searchPosts = (keyword: string) => {
-    if (!keyword.trim()) return posts;
-
+  const searchPosts = (keyword: string): Post[] => {
+    if (!keyword?.trim()) return posts;
+    const lower = keyword.toLowerCase();
     return posts.filter(
-      (post) =>
-        post.title.toLowerCase().includes(keyword.toLowerCase()) ||
-        post.body.toLowerCase().includes(keyword.toLowerCase()),
+      (p: Post) =>
+        p.title.toLowerCase().includes(lower) ||
+        p.body.toLowerCase().includes(lower),
     );
   };
 
@@ -125,12 +70,10 @@ export default function usePosts() {
     posts,
     loading,
     error,
-
     createPost,
     editPost,
     removePost,
-
     getPostById,
     searchPosts,
   };
-}
+};

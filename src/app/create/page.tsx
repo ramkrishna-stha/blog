@@ -1,27 +1,34 @@
 "use client";
 
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { createPostAsync } from "../../redux/postSlice";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { usePosts } from "../../hooks/usePosts";
 import Navbar from "../../components/Navbar";
 import BlogForm from "../../components/BlogForm";
 import PrivateRoute from "../../components/PrivateRoute";
-import { useRouter } from "next/navigation";
 
 export default function CreatePage() {
-  const dispatch = useDispatch<any>();
   const router = useRouter();
+  const { createPost } = usePosts();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (data: any) => {
     setIsSubmitting(true);
     try {
-      await dispatch(createPostAsync({ ...data, userId: 1 })).unwrap();
-      router.push("/dashboard");
+      const result = await createPost(data);
+
+      if (result.success) {
+        router.push("/dashboard");
+      } else {
+        console.error("Create post failed:", result);
+        alert(result.message || "Failed to create post");
+      }
     } catch (error) {
-      alert("Failed to create post");
+      console.error("Submit error:", error);
+      alert("Something went wrong. Check console for details.");
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   return (
