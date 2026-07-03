@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePosts } from "../../hooks/usePosts";
 import Navbar from "../../components/Navbar";
@@ -37,7 +37,7 @@ export default function CreatePage() {
         <Navbar />
         <div className="max-w-3xl mx-auto px-6 py-12">
           <div className="mb-10">
-            <h1 className="text-4xl font-semibold tracking-tight mb-2">
+            <h1 className="text-4xl text-white font-semibold tracking-tight mb-2">
               Create New Post
             </h1>
             <p className="text-gray-500">

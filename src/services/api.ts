@@ -4,7 +4,6 @@ const API_BASE = "https://jsonplaceholder.typicode.com";
 
 export const api = {
   login: async (email: string, password: string) => {
-    // Mock login
     const response = await fetch(`${API_BASE}/users/1`);
     const user = await response.json();
     const token = "mock-jwt-token-" + Date.now();
@@ -12,7 +11,6 @@ export const api = {
   },
 
   register: async (username: string, email: string, password: string) => {
-    // Mock register
     const response = await fetch(`${API_BASE}/users`, {
       method: "POST",
       body: JSON.stringify({ username, email }),

@@ -6,6 +6,7 @@ import Link from "next/link";
 import Navbar from "../../components/Navbar";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { MadeByShapeButton } from "@/ui/Button";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -20,9 +21,8 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      // Use Next.js router instead of window.location
       router.push("/dashboard");
-      router.refresh(); // Force refresh to update auth state
+      router.refresh();
     } catch (err) {
       alert("Invalid credentials. Try any email and any password.");
     } finally {
@@ -31,69 +31,74 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+    <div className="min-h-screen bg-linear-to-br from-zinc-950 via-zinc-900 to-black">
       <Navbar />
+
       <div className="flex min-h-[calc(100vh-73px)] items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
+          {/* Header */}
           <div className="mb-10 text-center">
-            <div className="mx-auto w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-2xl flex items-center justify-center mb-6 text-3xl">
+            <div className="mx-auto w-20 h-20  rounded-3xl flex items-center justify-center mb-6 shadow-xl shadow-blue-500/20 text-4xl">
               📝
             </div>
-            <h1 className="text-4xl font-semibold tracking-tight">
+            <h1 className="text-5xl font-bold tracking-tighter text-white mb-2">
               Welcome back
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-3">
-              Sign in to continue to Blogify
+            <p className="text-zinc-400 text-lg">
+              Sign in to continue to your blog
             </p>
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-6 bg-white dark:bg-gray-900 p-10 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800"
-          >
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Email address
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-5 py-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="you@example.com"
-              />
-            </div>
+          {/* Form Card */}
+          <div className="bg-zinc-900/70 backdrop-blur-xl border border-zinc-700 rounded-3xl p-10 shadow-2xl">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-zinc-400">
+                  Email address
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-5 py-4 bg-zinc-800 border border-zinc-700 rounded-2xl text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                  placeholder="you@example.com"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-5 py-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="••••••••"
-              />
-            </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-zinc-400">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full px-5 py-4 bg-zinc-800 border border-zinc-700 rounded-2xl text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                  placeholder="••••••••"
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-2xl text-lg transition-all flex items-center justify-center gap-3"
-            >
-              {isLoading && <Loader className="animate-spin" size={20} />}
-              Sign in
-            </button>
-          </form>
+              <MadeByShapeButton className="w-full mt-4">
+                <button type="submit" color="#008080" disabled={isLoading}>
+                  {isLoading && (
+                    <Loader className="animate-spin mr-2" size={20} />
+                  )}
+                  Sign in
+                </button>
+              </MadeByShapeButton>
+            </form>
+          </div>
 
-          <p className="text-center mt-8 text-sm text-gray-500">
+          {/* Footer Link */}
+          <p className="text-center mt-8 text-zinc-500 text-sm">
             Don&apos;t have an account?{" "}
             <Link
               href="/register"
-              className="text-blue-600 hover:underline font-medium"
+              className="text-[#008080] hover:text-blue-300 font-medium transition-colors"
             >
-              Sign up
+              Sign up free
             </Link>
           </p>
         </div>

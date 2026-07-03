@@ -60,31 +60,33 @@ export default function EditPost() {
       <div className="min-h-screen bg-gray-50 dark:bg-zinc-950">
         <Navbar />
         <div className="max-w-2xl mx-auto px-6 py-12">
-          <h1 className="text-3xl font-semibold mb-8">Edit Post</h1>
+          <h1 className="text-3xl font-semibold mb-8 text-white">Edit Post</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block mb-2 font-medium">Title</label>
+              <label className="block mb-2 font-medium text-white">Title</label>
               <input
                 type="text"
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border text-white border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             <div>
-              <label className="block mb-2 font-medium">Content</label>
+              <label className="block mb-2 font-medium text-white">
+                Content
+              </label>
               <textarea
                 value={formData.body}
                 onChange={(e) =>
                   setFormData({ ...formData, body: e.target.value })
                 }
                 rows={12}
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border text-white border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
@@ -93,7 +95,7 @@ export default function EditPost() {
               <button
                 type="button"
                 onClick={() => router.push("/dashboard")}
-                className="flex-1 py-3 border border-gray-300 rounded-2xl font-medium"
+                className="flex-1 py-3 border text-gray-100 border-gray-300 rounded-2xl font-medium"
               >
                 Cancel
               </button>
